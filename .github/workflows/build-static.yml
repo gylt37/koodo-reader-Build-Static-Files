@@ -32,7 +32,7 @@ jobs:
         run: |
           ls -la ./build # 静态文件默认输出到 build 目录，可根据实际路径调整
           mkdir ./build/koodo-reader
-          mv ./build/* ./koodo-reader
+          mv ./build/* ./build/koodo-reader
 
       # 6. （可选）上传静态文件为 Artifact，便于下载
       - name: Upload Static Files as Artifact
