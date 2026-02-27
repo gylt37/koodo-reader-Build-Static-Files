@@ -31,11 +31,12 @@ jobs:
       - name: Verify Build Output
         run: |
           ls -la ./build # 静态文件默认输出到 build 目录，可根据实际路径调整
-          mv ./build ./koodo-reader
+          mkdir ./build/koodo-reader
+          mv ./build/* ./koodo-reader
 
       # 6. （可选）上传静态文件为 Artifact，便于下载
       - name: Upload Static Files as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: koodo-reader-static
-          path: koodo-reader # 静态文件输出目录
+          path: ./build/ # 静态文件输出目录
