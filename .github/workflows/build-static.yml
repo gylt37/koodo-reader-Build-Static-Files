@@ -1,0 +1,53 @@
+name: 编译 静态文件
+
+# 触发条件：手动触发、main分支push、标签推送
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    tags: ['v*']
+
+jobs:
+  build-static:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. 拉取代码
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2. 配置 Node.js 环境（匹配项目依赖的 Node 版本，参考 release.yml 用 22）
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'yarn' # 缓存 yarn 依赖，加速构建
+
+      # 3. 安装依赖
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
+
+      # 4. 构建静态文件（适配项目的构建命令，参考现有脚本）
+      - name: Build Static Files
+        run: yarn build # 若项目 Web 端有单独构建命令，替换为对应命令（如 yarn build:web）
+
+      # 5. （可选）验证构建产物
+      - name: Verify Build Output
+        run: |
+          ls -la ./build # 静态文件默认输出到 build 目录，可根据实际路径调整
+          du -sh ./build
+
+      # 6. （可选）上传静态文件为 Artifact，便于下载
+      - name: Upload Static Files as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: koodo-reader-static
+          path: ./build # 静态文件输出目录
+
+      # 7. （可选）部署到 GitHub Pages
+      - name: Deploy to GitHub Pages
+        if: github.ref == 'refs/heads/main' # 仅 main 分支部署
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build # 静态文件目录
+          publish_branch: gh-pages # 部署到 gh-pages 分支
